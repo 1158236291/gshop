@@ -4,7 +4,8 @@
       <div class="menu-wrapper" ref="menuWrapper">
         <ul>
           <li
-            class="menu-item current"
+            class="menu-item"
+            :class="{ current: index === currentIndex }"
             v-for="(item, index) in goods"
             :key="index"
           >
@@ -16,7 +17,7 @@
         </ul>
       </div>
       <div class="foods-wrapper" ref="foodsWrapper">
-        <ul>
+        <ul ref="foodsUl">
           <li
             class="food-list-hook"
             v-for="(good, index) in goods"
@@ -57,7 +58,8 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import BScroll from "@better-scroll/core";
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -65,14 +67,57 @@ export default {
       tops: [], // 包含右侧所有分类小列表的 top 值
     };
   },
+
   created() {
-    this.getShopGoods();
+    this.$store.dispatch("getShopGoods", () => {
+      this.$nextTick(() => {
+        this.initScroll();
+        this.initTops();
+      });
+    });
   },
   computed: {
     ...mapState(["goods"]),
+    currentIndex() {
+      const { tops, scrollY } = this;
+
+      return tops.findIndex((top, index) => {
+        return scrollY >= top && scrollY < tops[index + 1];
+      });
+    },
   },
   methods: {
-    ...mapActions(["getShopGoods"]),
+    initScroll() {
+      new BScroll(".menu-wrapper");
+
+      const foodsScroll = new BScroll(".foods-wrapper", {
+        probeType: 2,
+        click: true,
+      });
+
+      foodsScroll.on("scroll", ({ x, y }) => {
+        this.scrollY = Math.abs(y);
+      });
+      // 监视滑动结束
+      foodsScroll.on("scrollEnd", (pos) => {
+        this.scrollY = Math.abs(pos.y); // 解决惯性滑动更新
+      });
+    },
+    initTops() {
+      const tops = [];
+
+      let top = 0;
+
+      tops.push(top);
+
+      const lis = this.$refs.foodsUl.getElementsByClassName("food-list-hook");
+
+      Array.prototype.slice.call(lis).forEach((item) => {
+        top += item.clientHeight;
+        tops.push(top);
+      });
+      this.tops = tops;
+    },
   },
 };
 </script>

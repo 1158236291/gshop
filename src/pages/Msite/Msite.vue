@@ -2,16 +2,23 @@
   <div class="msite">
     <!--首页头部-->
     <HeaderTop :title="this.$store.state.address.name">
-      <span class="header_search" slot="left">
+      <router-link class="header_search" slot="left" to="/search">
         <i class="iconfont icon-sousuo"></i>
-      </span>
-      <span class="header_login" slot="right">
-        <span class="header_login_text">登录|注册</span>
-      </span>
+      </router-link>
+      <router-link
+        class="header_login"
+        slot="right"
+        :to="userInfo._id ? '/userinfo' : '/login'"
+      >
+        <span class="header_login_text" v-if="!userInfo._id">登录|注册</span>
+        <span class="header_login_text" v-else>
+          <i class="iconfont icon-person"></i>
+        </span>
+      </router-link>
     </HeaderTop>
     <!--首页导航-->
     <nav class="msite_nav border-1px">
-      <div class="swiper-container" v-if="categoryArr.length>0">
+      <div class="swiper-container" v-if="categoryArr.length > 0">
         <div class="swiper-wrapper">
           <div
             class="swiper-slide"
@@ -34,7 +41,7 @@
         <!-- Add Pagination -->
         <div class="swiper-pagination"></div>
       </div>
-      <img src="./images/msite_back.svg" v-else>
+      <img src="./images/msite_back.svg" v-else />
     </nav>
     <!--首页附近商家-->
 
@@ -63,10 +70,10 @@ export default {
   },
   mounted() {
     this.$store.dispatch("getCategorys");
-    this.$store.dispatch("getShops")
+    this.$store.dispatch("getShops");
   },
   computed: {
-    ...mapState(["categorys"]),
+    ...mapState(["categorys",'userInfo']),
     categoryArr() {
       const max = 8;
       const arr = [];

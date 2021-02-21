@@ -1,4 +1,12 @@
-import { reqAddress, reqCategorys, reqShops, reqUserInfo,reqShopInfo,reqShopRatings,reqShopGoods} from "../api/index";
+import {
+  reqAddress,
+  reqCategorys,
+  reqShops,
+  reqUserInfo,
+  reqShopInfo,
+  reqShopRatings,
+  reqShopGoods,
+} from "../api/index";
 import {
   RECEIVE_ADDRESS,
   RECEIVE_CATEGORYS,
@@ -6,7 +14,9 @@ import {
   RECEIVE_USER_INFO,
   RECEIVE_INFO,
   RECEIVE_RATINGS,
-  RECEIVE_GOODS
+  RECEIVE_GOODS,
+  INCREMENT_FOOD_COUNT,
+  DECREMENT_FOOD_COUNT,
 } from "./mutation-types";
 export default {
   async getAddress({ commit, state }) {
@@ -64,6 +74,14 @@ export default {
       const goods = result.data;
       commit(RECEIVE_GOODS, { goods }); // 如果组件中传递了接收消息的回调函数, 数据更新后, 调用回调通知调用的组件
       cb && cb();
+    }
+  },
+  updateFoodCount({ commit }, params) {
+    let { isAdd, food } = params;
+    if (isAdd) {
+      commit(INCREMENT_FOOD_COUNT, { food });
+    } else {
+      commit(DECREMENT_FOOD_COUNT, { food });
     }
   },
 };

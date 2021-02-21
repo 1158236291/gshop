@@ -8,6 +8,7 @@
             :class="{ current: index === currentIndex }"
             v-for="(item, index) in goods"
             :key="index"
+            @click="clickMenuItem(index)"
           >
             <span class="text bottom-border-1px">
               <img v-if="item.icon" class="icon" :src="item.icon" />
@@ -29,6 +30,7 @@
                 class="food-item bottom-border-1px"
                 v-for="(food, index) in good.foods"
                 :key="index"
+                @click="showFood(food)"
               >
                 <div class="icon">
                   <img width="57" height="57" :src="food.icon" />
@@ -46,25 +48,34 @@
                       >￥{{ food.oldPrice }}</span
                     >
                   </div>
-                  <div class="cartcontrol-wrapper">CartControl</div>
+                  <div class="cartcontrol-wrapper">
+                    <CartControl :food="food"></CartControl>
+                  </div>
                 </div>
               </li>
             </ul>
           </li>
         </ul>
       </div>
+
+      <ShopCart></ShopCart>
     </div>
+    <Food :food="food" ref="food"></Food>
   </div>
 </template>
 
 <script>
 import BScroll from "@better-scroll/core";
 import { mapState } from "vuex";
+import CartControl from "../../../components/CartControl/CartControl";
+import Food from "../../../components/Food/Food.vue";
+import ShopCart from "../../../components/ShopCart/ShopCart";
 export default {
   data() {
     return {
       scrollY: 0, //右侧 Y 轴滑动的坐标
       tops: [], // 包含右侧所有分类小列表的 top 值
+      food: {},
     };
   },
 
@@ -86,20 +97,32 @@ export default {
       });
     },
   },
+  components: {
+    CartControl,
+    Food,
+    ShopCart,
+  },
   methods: {
+    showFood(food) {
+      this.food = food;
+      console.log("food", this.food);
+      this.$refs.food.toggleShow();
+    },
     initScroll() {
-      new BScroll(".menu-wrapper");
+      new BScroll(".menu-wrapper", {
+        click: true,
+      });
 
-      const foodsScroll = new BScroll(".foods-wrapper", {
+      this.foodsScroll = new BScroll(".foods-wrapper", {
         probeType: 2,
         click: true,
       });
 
-      foodsScroll.on("scroll", ({ x, y }) => {
+      this.foodsScroll.on("scroll", ({ x, y }) => {
         this.scrollY = Math.abs(y);
       });
       // 监视滑动结束
-      foodsScroll.on("scrollEnd", (pos) => {
+      this.foodsScroll.on("scrollEnd", (pos) => {
         this.scrollY = Math.abs(pos.y); // 解决惯性滑动更新
       });
     },
@@ -117,6 +140,13 @@ export default {
         tops.push(top);
       });
       this.tops = tops;
+    },
+    clickMenuItem(index) {
+      let currentTop = this.tops[index];
+
+      this.scrollY = currentTop;
+
+      this.foodsScroll.scrollTo(0, -currentTop, 300);
     },
   },
 };

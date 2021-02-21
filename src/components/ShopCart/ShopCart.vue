@@ -27,9 +27,9 @@
         <div class="shopcart-list" v-show="listShow">
           <div class="list-header">
             <h1 class="title">购物车</h1>
-            <span class="empty">清空</span>
+            <span class="empty" @click="clearCart">清空</span>
           </div>
-          <div class="list-content">
+          <div class="list-content" id="listContent">
             <ul>
               <li class="food" v-for="(food, index) in cartFoods" :key="index">
                 <span class="name">{{ food.name }}</span>
@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import { MessageBox } from "mint-ui";
+import BScroll from "@better-scroll/core";
 import CartControl from "../CartControl/CartControl.vue";
 import { mapState, mapGetters } from "vuex";
 export default {
@@ -64,6 +66,17 @@ export default {
       if (this.totalCount === 0) {
         this.isShow = false;
         return false;
+      }
+      if (this.isShow) {
+        this.$nextTick(() => {
+          if (!this.scroll) {
+            this.scroll = new BScroll("#listContent", {
+              click: true,
+            });
+          } else {
+            this.scroll.refresh();
+          }
+        });
       }
 
       return this.isShow;
@@ -89,6 +102,14 @@ export default {
     },
   },
   methods: {
+    clearCart() {
+      MessageBox.confirm("确定清空嘛?").then(
+        (action) => {
+          this.$store.dispatch("clearCart");
+        },
+        () => {}
+      );
+    },
     toggleShow() {
       if (this.totalCount > 0) {
         this.isShow = !this.isShow;

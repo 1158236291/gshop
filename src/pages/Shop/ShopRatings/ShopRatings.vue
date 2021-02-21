@@ -92,7 +92,7 @@
                   >{{ item }}</span
                 >
               </div>
-              <div class="time">{{ rating.rateTime }}</div>
+              <div class="time">{{ rating.rateTime | date-format }}</div>
             </div>
           </li>
         </ul>

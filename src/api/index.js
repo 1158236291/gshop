@@ -40,4 +40,7 @@ export const reqShopRatings = () => ajax('/ratings')
  */
 export const reqShopGoods = () => ajax('/goods')
 
+export const reqSearchGoods = (geohash, keyword) => ajax('/api/search_shops', {geohash,
+    keyword})
+    
 
